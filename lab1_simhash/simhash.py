@@ -1,3 +1,4 @@
+import sys
 import hashlib
 
 def simhash(text):
@@ -32,4 +33,21 @@ def simhash(text):
     simhash = ''.join(str(x) for x in sh)
     return hex(int(simhash,2))
 
-print(simhash("fakultet elektrotehnike i racunarstva"))
+def main():
+    hashes = []
+    src = open("a.in", 'r')
+    # src = sys.stdin
+    # read number of input lines
+    input_lines = int(src.readline())
+    # read input lines
+    for i in range(0,input_lines):
+        hashes.append(simhash(src.readline()))
+    # read number of queries
+    queries = src.readline()
+    # read queries
+    #for i in range(0,queries):
+    #    continue
+
+
+# print(simhash("fakultet elektrotehnike i racunarstva"))
+main()
