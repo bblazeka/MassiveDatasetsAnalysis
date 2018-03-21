@@ -1,10 +1,24 @@
 import sys
 import hashlib
 
+scale = 16 # hexadecimal
+num_of_bits = 4
+
+def hexconvert(hex):
+    return bin(int(hex, scale))[2:].zfill(num_of_bits)
+
+def comparehash(first,second,diff):
+    dif = 0
+    zipper = zip(hexconvert(first),hexconvert(second))
+    for tup in zipper:
+        if tup[0] != tup[1]:
+            dif+=1
+        if dif > diff:
+            return False
+    return True
+
 def simhash(text):
     sh = [0] * 128
-    scale = 16 ## hexadecimal
-    num_of_bits = 4
     member_dict = dict()
     hexnum_dict = dict()
     members = text.split()
@@ -43,10 +57,18 @@ def main():
     for i in range(0,input_lines):
         hashes.append(simhash(src.readline()))
     # read number of queries
-    queries = src.readline()
+    queries = int(src.readline())
     # read queries
-    #for i in range(0,queries):
-    #    continue
+    for i in range(0,queries):
+        query = [int(x) for x in src.readline().split()]
+        exhash = hashes[query[0]]
+        diff = query[1]
+        cntr = 0
+        for h in hashes:
+            if h == exhash or comparehash(h,exhash,diff):
+                cntr+=1
+        cntr -= 1
+        print(cntr)
 
 
 # print(simhash("fakultet elektrotehnike i racunarstva"))
