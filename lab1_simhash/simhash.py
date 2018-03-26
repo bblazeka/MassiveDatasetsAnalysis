@@ -7,14 +7,14 @@ num_of_bits = 4
 def hexconvert(hex):
     return bin(int(hex, scale))[2:].zfill(num_of_bits)
 
-def comparehash(first,second,diff):
+def comparehash(first,second,limit):
     dif = 0
-    zipper = zip(hexconvert(first),hexconvert(second))
+    zipper = zip(first,second)
     for tup in zipper:
         if tup[0] != tup[1]:
             dif+=1
-        if dif > diff:
-            return False
+            if dif > limit:
+                return False
     return True
 
 def simhash(text):
@@ -45,12 +45,13 @@ def simhash(text):
         else:
             sh[i] = 0
     simhash = ''.join(str(x) for x in sh)
-    return hex(int(simhash,2))
+    # returns binary of a hash
+    return simhash
 
 def main():
     hashes = []
-    src = open("a.in", 'r')
-    # src = sys.stdin
+    # src = open("a.in", 'r')
+    src = sys.stdin
     # read number of input lines
     input_lines = int(src.readline())
     # read input lines
@@ -64,12 +65,13 @@ def main():
         exhash = hashes[query[0]]
         diff = query[1]
         cntr = 0
+        # iterating through hashes
         for h in hashes:
-            if h == exhash or comparehash(h,exhash,diff):
+            if comparehash(h,exhash,diff):
                 cntr+=1
         cntr -= 1
-        print(cntr)
+        sys.stdout.write(str(cntr)+"\n")
 
 
-# print(simhash("fakultet elektrotehnike i racunarstva"))
+#print(simhash("fakultet elektrotehnike i racunarstva"))
 main()
