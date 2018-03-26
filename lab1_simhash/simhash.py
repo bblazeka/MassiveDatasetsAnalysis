@@ -4,9 +4,6 @@ import hashlib
 scale = 16 # hexadecimal
 num_of_bits = 4
 
-def hexconvert(hex):
-    return bin(int(hex, scale))[2:].zfill(num_of_bits)
-
 def comparehash(first,second,limit):
     dif = 0
     zipper = zip(first,second)
@@ -50,17 +47,17 @@ def simhash(text):
 
 def main():
     hashes = []
-    # src = open("a.in", 'r')
-    src = sys.stdin
+    src = open("a.in", 'r')
+    #src = sys.stdin
     # read number of input lines
     input_lines = int(src.readline())
     # read input lines
-    for i in range(0,input_lines):
+    for i in range(input_lines):
         hashes.append(simhash(src.readline()))
     # read number of queries
     queries = int(src.readline())
     # read queries
-    for i in range(0,queries):
+    for i in range(queries):
         query = [int(x) for x in src.readline().split()]
         exhash = hashes[query[0]]
         diff = query[1]
@@ -72,6 +69,4 @@ def main():
         cntr -= 1
         sys.stdout.write(str(cntr)+"\n")
 
-
-#print(simhash("fakultet elektrotehnike i racunarstva"))
 main()
