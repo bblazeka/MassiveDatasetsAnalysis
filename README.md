@@ -1,0 +1,1 @@
+Every Python script was submitted individually as a task's solution.
