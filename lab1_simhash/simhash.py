@@ -47,17 +47,16 @@ def simhash(text):
 
 def main():
     hashes = []
-    src = open("a.in", 'r')
-    #src = sys.stdin
+    src = sys.stdin
     # read number of input lines
     input_lines = int(src.readline())
     # read input lines
-    for i in range(input_lines):
+    for _ in range(input_lines):
         hashes.append(simhash(src.readline()))
     # read number of queries
     queries = int(src.readline())
     # read queries
-    for i in range(queries):
+    for _ in range(queries):
         query = [int(x) for x in src.readline().split()]
         exhash = hashes[query[0]]
         diff = query[1]
