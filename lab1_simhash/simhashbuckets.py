@@ -75,8 +75,7 @@ def LSH(texts):
             
 def main():
     texts = []
-    src = open("b.in", 'r')
-    #src = sys.stdin
+    src = sys.stdin
     # read number of input lines
     input_lines = int(src.readline())
     # read input lines
