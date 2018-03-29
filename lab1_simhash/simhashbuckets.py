@@ -1,11 +1,19 @@
 import sys
 import hashlib
+from collections import defaultdict
 
 scale = 16 # hexadecimal
 num_of_bits = 4
+k = 128
+b = 8
+r = k/b
 
-candidates = {}
+candidates = defaultdict(list)
 hashes = []
+member_dict = dict()
+hexnum_dict = dict()
+
+src = sys.stdin
 
 def comparehash(first,second,limit):
     dif = 0
@@ -17,84 +25,77 @@ def comparehash(first,second,limit):
                 return False
     return True
 
-def simhash(text):
-    sh = [0] * 128
-    member_dict = dict()
-    hexnum_dict = dict()
-    members = text.split()
-    for member in members:
-        binary = ""
-        if(member not in member_dict):
-            hash = hashlib.md5(member.encode('utf-8'))
-            member_dict[member] = hash.hexdigest()
-        for c in member_dict[member]:
-            if(c not in hexnum_dict):
-                # solving the left-side trailing zero problem
-                hexnum_dict[c] = bin(int(c, scale))[2:].zfill(num_of_bits)
-            binary+=str(hexnum_dict[c])
-        i = 0
-        for c in binary:
-            if c == '1':
-                sh[i]+=1
-            else:
-                sh[i]-=1
-            i+=1
-    for i in range(0,128):
-        if sh[i] >= 0:
-            sh[i] = 1
+def process(subject):
+    sum = 0
+    for el in subject:
+        if el == "1":
+            sum+=1
         else:
-            sh[i] = 0
-    simhash = ''.join(str(x) for x in sh)
-    # returns binary of a hash
-    return simhash
+            sum-=1
+    if sum >= 0:
+        return "1"
+    else:
+        return "0"
 
-def hash2int(belt, hash):
-    word = hash[belt-1:belt*16]
+def hex_processing(c):
+    if(c not in hexnum_dict):
+        # solving the left-side trailing zero problem
+        hexnum_dict[c] = str(bin(int(c, scale))[2:].zfill(num_of_bits))
+    return hexnum_dict[c]
+
+def word_processing(member,sh):
+    if(member not in member_dict):
+        hash = hashlib.md5(member.encode('utf-8'))
+        member_dict[member] = hash.hexdigest()
+    bins = [hex_processing(c) for c in member_dict[member]]
+    binary = "".join(bins)
+    return binary
+
+def simhash(text):
+    sh = [0] * k
+    binaries = [word_processing(t,sh) for t in text.split()]
+    zipped = zip(*binaries)
+    simhash = [process(tup) for tup in zipped]
+    # returns binary of a hash
+    return "".join(simhash)
+
+def hash2int(belt, inputhash):
+    word = inputhash[r*(belt-1):belt*r-1]
     return int(word,2)
 
-def LSH(texts):
-    k = 128
-    b = 8
-    r = k/b
-    # convert text to hash
-    for t in texts:
-        hashes.append(simhash(t))
+def LSH(input_lines):
+    # read input lines and convert to hash
+    for _ in range(input_lines):
+        hashes.append(simhash(src.readline()))
     for belt in range(1,b):
         boxes = {}
-        N = len(hashes)
-        for id in range(N):
-            intval = hash2int(belt, hashes[id])
-            cat_texts = {}
+        for i in range(len(hashes)):
+            intval = hash2int(belt, hashes[i])
+            cat_texts = []
             if intval in boxes:
                 cat_texts = boxes[intval]
                 for txtid in cat_texts:
-                    candidates[txtid].append(id)
-                    candidates[id].append(txtid)
+                    candidates[txtid].append(i)
+                    candidates[i].append(txtid)
             else:
-                cat_texts.clear()
+                cat_texts = []
+            cat_texts.append(i)
+            boxes[intval] = cat_texts
             
 def main():
-    texts = []
-    src = sys.stdin
     # read number of input lines
     input_lines = int(src.readline())
-    # read input lines
-    for i in range(0,input_lines):
-        texts.append(src.readline())
-    LSH(texts)
+    LSH(input_lines)
     # read number of queries
     queries = int(src.readline())
-    for i in range(queries):
+    for _ in range(queries):
         query = [int(x) for x in src.readline().split()]
-        hash = hashes[query[0]]
+        h = hashes[query[0]]
         diff = query[1]
         cntr = 0
         for ind in candidates[query[0]]:
-            print(hash)
-            print(hashes[ind])  
-            if comparehash(hash,hashes[ind],diff):
+            if comparehash(h,hashes[ind],diff):
                 cntr+=1
-        cntr -= 1
         sys.stdout.write(str(cntr)+"\n")
 
 main()
