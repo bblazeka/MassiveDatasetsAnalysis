@@ -60,27 +60,28 @@ def simhash(text):
     return "".join(simhash)
 
 def hash2int(belt, inputhash):
-    word = inputhash[r*(belt-1):belt*r-1]
+    word = inputhash[r*(belt-1):belt*r]
     return int(word,2)
 
 def LSH(input_lines):
     # read input lines and convert to hash
     for _ in range(input_lines):
         hashes.append(simhash(src.readline()))
-    for belt in range(1,b):
+    for belt in range(1,b+1):
         boxes = {}
-        for i in range(len(hashes)):
+        for i in range(input_lines):
             intval = hash2int(belt, hashes[i])
-            cat_texts = []
-            if intval in boxes:
-                cat_texts = boxes[intval]
-                for txtid in cat_texts:
-                    candidates[txtid].append(i)
-                    candidates[i].append(txtid)
+            partition_texts = set()
+            if boxes.get(intval):
+                partition_texts = boxes[intval]
+                for txtid in partition_texts:
+                    if (candidates.get(i) is None) or (txtid not in candidates.get(i)):
+                        candidates.setdefault(i, []).append(txtid)
+                        candidates.setdefault(txtid, []).append(i)
             else:
-                cat_texts = []
-            cat_texts.append(i)
-            boxes[intval] = cat_texts
+                partition_texts = set()
+            partition_texts.add(i)
+            boxes[intval] = partition_texts
             
 def main():
     # read number of input lines
