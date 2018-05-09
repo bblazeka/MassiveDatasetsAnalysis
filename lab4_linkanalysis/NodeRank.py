@@ -1,18 +1,19 @@
 import sys
-from collections import defaultdict
 
 def logic(iter,j):
     basic_node = node_iterations[j]
+    previous = basic_node[iter-1]
     try:
-        node_iterations[j][iter] += leak
+        basic_node[iter] += leak
     except IndexError:
         basic_node.append(leak)
-    deg = degrees[j]
-    for dest in graph[j]:
+    factor = beta * previous / degrees[j]
+    connections = graph[j]
+    for dest in connections:
         try:
-            node_iterations[dest][iter] += beta * basic_node[iter-1] / deg
+            node_iterations[dest][iter] += factor
         except IndexError:
-            node_iterations[dest].append(beta * basic_node[iter-1] / deg)
+            node_iterations[dest].append(factor)
 
 def generate_bottom_up():
     [
@@ -21,30 +22,33 @@ def generate_bottom_up():
         for j in range(n)
     ]
 
-graph = defaultdict(list)
-node_iterations = defaultdict(list)
-degrees = defaultdict(int)
+graph = []
+node_iterations = []
+degrees = []
 
 src = sys.stdin
 readline = src.readline
+graph_append = graph.append
+degrees_append = degrees.append
+node_iters_append = node_iterations.append
 input = readline().split()
 n = int(input[0])
 beta = float(input[1])
 leak = (1-beta)/n
-for i in range(n):
-    node_iterations[i] = [1.0/n]
+for _ in xrange(n):
+    node_iters_append([1.0/n])
 
 # reading the input
-for i in range(n):
-    graph[i] = [int(nod) for nod in readline().split()]
-    degrees[i] = len(graph[i])
+for i in xrange(n):
+    graph_append([int(nod) for nod in readline().split()])
+    degrees_append(len(graph[i]))
 
 # generate bottom up
 generate_bottom_up()
 
 # number of queries
 q = int(readline())
-for _ in range(q):
+for _ in xrange(q):
     [ex_node, iteration] = [int(x) for x in readline().split()]
     r_t = node_iterations[ex_node][iteration]
     print('{0:.10f}'.format(r_t))
