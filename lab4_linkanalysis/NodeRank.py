@@ -15,13 +15,6 @@ def logic(iter,j):
         except IndexError:
             node_iterations[dest].append(factor)
 
-def generate_bottom_up():
-    [
-        logic(i,j)
-        for i in range(1,101)
-        for j in range(n)
-    ]
-
 graph = []
 node_iterations = []
 degrees = []
@@ -44,7 +37,11 @@ for i in xrange(n):
     degrees_append(len(graph[i]))
 
 # generate bottom up
-generate_bottom_up()
+[
+    logic(i,j)
+    for i in xrange(1,101)
+    for j in xrange(n)
+]
 
 # number of queries
 q = int(readline())
