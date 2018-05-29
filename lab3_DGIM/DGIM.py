@@ -7,7 +7,7 @@ error_rate = 0.5
 timestamp = 0
 oldest = -1
 # number of buckets of same size
-same_buckets = math.ceil(1/error_rate)
+same_buckets = int(math.ceil(1/error_rate))
 # window size
 N = int(src.readline())
 max_index = int(math.ceil(math.log(N)/math.log(2)))
@@ -15,34 +15,42 @@ max_index = int(math.ceil(math.log(N)/math.log(2)))
 buckets = [deque() for _ in range(max_index + 1)]
 
 while True:
-    line = src.readline()
+    line = src.readline().strip('\n')
     # stop if line is empty
     if not line: break
 
+    # respond to query, return count of ones
     if(line[0] == 'q'):
         query = int(line.split(" ")[1])
         sum = 0
         value = 0
         power = 1
-        # respond to query, return count of ones
         for bucket in buckets:
             length = len(bucket)
-            if(length > 0 and (timestamp-bucket[-1])%(2*query) >= query):
-                break
             if length>0:
+                if (timestamp-bucket[-1]) >= query:
+                    if(length == 1):
+                        # the block that is too old is only one, stop iterating
+                        break
+                    if((timestamp-bucket[-2])>=query):
+                        # even another block is too old
+                        break
+                    # other block can remain
+                    length = 1
                 value = power
                 sum += length * value
             power *= 2
-        sum -= math.floor(value / 2)
+        sum -= value
+        sum += math.floor(value / 2)
         print(int(sum))
 
+    # chunk processing
     else:
-        # chunk processing
         for c in line:
-            timestamp=(timestamp+1) % (2 * N)
+            timestamp+=1
 
-            # removing bits out of the windows
-            if((timestamp - oldest)%(2*N) >= N):
+            # removing buckets out of the windows
+            if(oldest >= 0 and (timestamp - oldest) >= N):
                 popped = False
                 for bucket in reversed(buckets):
                     if len(bucket) > 0 and popped == False:
