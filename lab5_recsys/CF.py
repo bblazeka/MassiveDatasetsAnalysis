@@ -96,7 +96,7 @@ for i in range(Q):
     num = 0
     denom = 0
     for other_element in order[row]:
-        if(matrix[other_element][col] > 0):
+        if(matrix[other_element][col] > 0 and similarities[row][other_element] > 0):
             counter+=1
             num += matrix[other_element][col]*similarities[row][other_element]
             denom += similarities[row][other_element]
